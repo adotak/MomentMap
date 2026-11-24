@@ -48,6 +48,8 @@ const eventLinkInput = document.getElementById("eventLink");
 const addEventButton = document.getElementById("addEventButton");
 const cancelEditButton = document.getElementById("cancelEditButton");
 const eventsList = document.getElementById("eventsList");
+const exportEventsButton = document.getElementById("exportEventsButton");
+const backupStatus = document.getElementById("backupStatus");
 const searchInput = document.getElementById("searchInput");
 const warningMessage = document.getElementById("warningMessage");
 const connectionStatus = document.getElementById("connectionStatus");
@@ -108,6 +110,9 @@ const translations = {
         onlineStatus: "Online - your events are saved on this device.",
         offlineStatus: "Offline - you can still view and manage your saved events.",
         emptyEvents: "No events found. Add one to get started!",
+        exportEventsButton: "Download event backup",
+        backupDownloaded: "Your event backup has been downloaded.",
+        backupFailed: "The event backup could not be created. Please try again.",
         noAccessibility: "No accessibility features listed.",
         deleteEvent: "Delete Event",
         shiftDetails: "Volunteer shift",
@@ -169,6 +174,9 @@ const translations = {
         onlineStatus: "آن لائن - آپ کے پروگرام اس ڈیوائس پر محفوظ ہیں۔",
         offlineStatus: "آف لائن - آپ اپنے محفوظ پروگرام دیکھ اور منظم کر سکتے ہیں۔",
         emptyEvents: "کوئی پروگرام نہیں ملا۔ شروع کرنے کے لیے ایک پروگرام شامل کریں!",
+        exportEventsButton: "پروگراموں کا بیک اپ ڈاؤن لوڈ کریں",
+        backupDownloaded: "آپ کے پروگراموں کا بیک اپ ڈاؤن لوڈ ہو گیا ہے۔",
+        backupFailed: "بیک اپ نہیں بن سکا۔ براہ کرم دوبارہ کوشش کریں۔",
         noAccessibility: "دستیابی کی سہولیات درج نہیں ہیں۔",
         deleteEvent: "پروگرام حذف کریں",
         shiftDetails: "رضاکاروں کی شفٹ",
@@ -240,6 +248,7 @@ function applyLanguage() {
         : translation.updateEventButton;
     cancelEditButton.textContent = translation.cancelEditButton;
     document.getElementById("eventsHeading").textContent = translation.eventsHeading;
+    exportEventsButton.textContent = translation.exportEventsButton;
     document.getElementById("footerText").textContent = translation.footerText;
     document.querySelectorAll("[data-accessibility-label]").forEach(label => {
         const feature = label.dataset.accessibilityLabel;
@@ -255,6 +264,40 @@ function updateConnectionStatus() {
         ? getTranslation("onlineStatus")
         : getTranslation("offlineStatus");
     connectionStatus.classList.toggle("offline", !navigator.onLine);
+}
+
+function exportEvents() {
+    let downloadUrl;
+    try {
+        const backup = {
+            format: "momentmap-backup",
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            events
+        };
+        const now = new Date();
+        const fileDate = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, "0"),
+            String(now.getDate()).padStart(2, "0")
+        ].join("-");
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+        downloadUrl = URL.createObjectURL(blob);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = downloadUrl;
+        downloadLink.download = `momentmap-backup-${fileDate}.json`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        backupStatus.textContent = getTranslation("backupDownloaded");
+    } catch (error) {
+        console.error("Could not export events:", error);
+        backupStatus.textContent = getTranslation("backupFailed");
+    } finally {
+        if (downloadUrl) {
+            window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+        }
+    }
 }
 
 function registerServiceWorker() {
@@ -631,6 +674,7 @@ function searchEvents() {
 // When the form is submitted (user clicks "Add Event")
 eventForm.addEventListener("submit", addEvent);
 cancelEditButton.addEventListener("click", resetEventForm);
+exportEventsButton.addEventListener("click", exportEvents);
 
 // When user types in the search box
 searchInput.addEventListener("input", searchEvents);

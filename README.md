@@ -30,6 +30,7 @@ and descriptions.
   every selected feature to be shown.
 - Sort events chronologically, with the earliest event first.
 - Identify past events with a subdued card style.
+- Download a JSON backup of all events, including accessibility options and volunteer sign-ups.
 - Add an optional volunteer shift with a role, required volunteer count, and
   start/end times.
 - Allow attendees to sign up for open volunteer shift places on the same
@@ -96,7 +97,9 @@ All user data is stored locally in the browser with `localStorage`:
 
 Data is specific to the current browser and device. There is no server-side
 sync, shared event database, authentication, or cross-device backup.
-Clearing site data removes the saved events and language preference.
+Use **Download event backup** to save a JSON copy of all events, including
+volunteer sign-ups, outside the browser. Clearing site data removes the saved
+events and language preference; keep downloaded backups somewhere safe.
 
 ## Project structure
 

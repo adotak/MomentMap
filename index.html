@@ -146,6 +146,10 @@
         <!-- EVENTS LIST SECTION -->
         <section class="events-section">
             <h2 id="eventsHeading">Find Accessible Events</h2>
+            <div class="backup-controls">
+                <button type="button" class="btn-export" id="exportEventsButton">Download event backup</button>
+                <p id="backupStatus" role="status" aria-live="polite"></p>
+            </div>
             <fieldset class="accessibility-filter">
                 <legend id="filterLegend">Show events with all selected features</legend>
                 <label><input type="checkbox" name="accessibility-filter" value="ramp"><span data-accessibility-label="ramp">Ramp / step-free access</span></label>
