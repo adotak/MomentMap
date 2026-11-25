@@ -7,8 +7,12 @@ The app includes a service worker and web app manifest. Once the app has
 been opened successfully, its HTML, CSS, JavaScript, and manifest are cached
 so the event manager can load without an internet connection.
 
-Events are stored in the browser's `localStorage`, so adding and deleting
-events continues to work offline on the same device and browser.
+Events are stored in the browser's `localStorage`, so creating, editing, and
+deleting events continues to work offline on the same device and browser.
+
+Events can include a location, category, start and end times, and an optional
+event or registration link. Search also matches event locations, categories,
+and descriptions.
 
 ## Accessibility filters
 

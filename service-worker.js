@@ -1,4 +1,4 @@
-const CACHE_NAME = "event-horizon-v4";
+const CACHE_NAME = "momentmap-v6";
 const APP_SHELL = [
     "./",
     "./index.html",

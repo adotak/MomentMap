@@ -40,6 +40,13 @@ const eventForm = document.getElementById("eventForm");
 const eventNameInput = document.getElementById("eventName");
 const eventDateInput = document.getElementById("eventDate");
 const eventDescriptionInput = document.getElementById("eventDescription");
+const eventLocationInput = document.getElementById("eventLocation");
+const eventCategoryInput = document.getElementById("eventCategory");
+const eventStartTimeInput = document.getElementById("eventStartTime");
+const eventEndTimeInput = document.getElementById("eventEndTime");
+const eventLinkInput = document.getElementById("eventLink");
+const addEventButton = document.getElementById("addEventButton");
+const cancelEditButton = document.getElementById("cancelEditButton");
 const eventsList = document.getElementById("eventsList");
 const searchInput = document.getElementById("searchInput");
 const warningMessage = document.getElementById("warningMessage");
@@ -51,18 +58,32 @@ const volunteerRoleInput = document.getElementById("volunteerRole");
 const volunteerCountInput = document.getElementById("volunteerCount");
 const volunteerStartInput = document.getElementById("volunteerStart");
 const volunteerEndInput = document.getElementById("volunteerEnd");
+let editingEventIndex = null;
 
 const translations = {
     en: {
         direction: "ltr",
-        subtitle: "Manage Your Events Easily",
+        subtitle: "Plan your events. Remember every moment.",
         languageLabel: "Language:",
         searchPlaceholder: "Search events by name or date...",
         searchLabel: "Search events by name or date",
         addEventHeading: "Add a New Event",
+        editEventHeading: "Edit Event",
         eventNameLabel: "Event Name:",
         eventNamePlaceholder: "Enter event name",
         eventDateLabel: "Event Date:",
+        eventLocationLabel: "Location:",
+        eventLocationPlaceholder: "e.g. Community Hall",
+        eventCategoryLabel: "Category:",
+        selectCategory: "Select a category",
+        categoryCommunity: "Community",
+        categoryEducation: "Education",
+        categoryArts: "Arts & culture",
+        categorySports: "Sports",
+        categoryOther: "Other",
+        eventStartTimeLabel: "Start time:",
+        eventEndTimeLabel: "End time:",
+        eventLinkLabel: "Event or registration link:",
         eventDescriptionLabel: "Event Description:",
         eventDescriptionPlaceholder: "Enter event description",
         accessibilityLegend: "Accessibility Features Available",
@@ -75,8 +96,15 @@ const translations = {
         volunteerStartLabel: "Start:",
         volunteerEndLabel: "End:",
         addEventButton: "Add Event",
+        updateEventButton: "Save Changes",
+        cancelEditButton: "Cancel editing",
+        editEvent: "Edit Event",
         eventsHeading: "Find Accessible Events",
-        footerText: "© 2026 Event Horizon. All rights reserved.",
+        location: "Location",
+        category: "Category",
+        eventLink: "Event details / registration",
+        eventTime: "Time",
+        footerText: "© 2026 MomentMap. All rights reserved.",
         onlineStatus: "Online - your events are saved on this device.",
         offlineStatus: "Offline - you can still view and manage your saved events.",
         emptyEvents: "No events found. Add one to get started!",
@@ -90,18 +118,33 @@ const translations = {
         signUp: "Sign up",
         signedUp: "Signed up",
         volunteerNameRequired: "Please enter your name before signing up.",
-        validation: "⚠️ Please fill in all fields (Event Name, Date, and Description)"
+        validation: "⚠️ Please fill in all fields (Event Name, Date, and Description)",
+        timeValidation: "Please enter both event times, and make sure the end time is after the start time.",
+        linkValidation: "Please enter a valid web link beginning with http:// or https://."
     },
     ur: {
         direction: "rtl",
-        subtitle: "اپنے پروگرام آسانی سے منظم کریں",
+        subtitle: "اپنے پروگرام بنائیں، ہر لمحہ یاد رکھیں",
         languageLabel: "زبان:",
         searchPlaceholder: "نام یا تاریخ کے ذریعے پروگرام تلاش کریں...",
         searchLabel: "نام یا تاریخ کے ذریعے پروگرام تلاش کریں",
         addEventHeading: "نیا پروگرام شامل کریں",
+        editEventHeading: "پروگرام میں ترمیم",
         eventNameLabel: "پروگرام کا نام:",
         eventNamePlaceholder: "پروگرام کا نام درج کریں",
         eventDateLabel: "پروگرام کی تاریخ:",
+        eventLocationLabel: "مقام:",
+        eventLocationPlaceholder: "مثلاً کمیونٹی ہال",
+        eventCategoryLabel: "قسم:",
+        selectCategory: "قسم منتخب کریں",
+        categoryCommunity: "کمیونٹی",
+        categoryEducation: "تعلیم",
+        categoryArts: "فن اور ثقافت",
+        categorySports: "کھیل",
+        categoryOther: "دیگر",
+        eventStartTimeLabel: "آغاز کا وقت:",
+        eventEndTimeLabel: "اختتام کا وقت:",
+        eventLinkLabel: "پروگرام یا رجسٹریشن کا لنک:",
         eventDescriptionLabel: "پروگرام کی تفصیل:",
         eventDescriptionPlaceholder: "پروگرام کی تفصیل درج کریں",
         accessibilityLegend: "دستیابی کی سہولیات",
@@ -114,8 +157,15 @@ const translations = {
         volunteerStartLabel: "آغاز:",
         volunteerEndLabel: "اختتام:",
         addEventButton: "پروگرام شامل کریں",
+        updateEventButton: "تبدیلیاں محفوظ کریں",
+        cancelEditButton: "ترمیم منسوخ کریں",
+        editEvent: "پروگرام میں ترمیم",
         eventsHeading: "قابل رسائی پروگرام تلاش کریں",
-        footerText: "© 2026 ایونٹ ہورائزن۔ جملہ حقوق محفوظ ہیں۔",
+        location: "مقام",
+        category: "قسم",
+        eventLink: "پروگرام کی تفصیل / رجسٹریشن",
+        eventTime: "وقت",
+        footerText: "© 2026 مومنٹ میپ۔ جملہ حقوق محفوظ ہیں۔",
         onlineStatus: "آن لائن - آپ کے پروگرام اس ڈیوائس پر محفوظ ہیں۔",
         offlineStatus: "آف لائن - آپ اپنے محفوظ پروگرام دیکھ اور منظم کر سکتے ہیں۔",
         emptyEvents: "کوئی پروگرام نہیں ملا۔ شروع کرنے کے لیے ایک پروگرام شامل کریں!",
@@ -129,7 +179,9 @@ const translations = {
         signUp: "رجسٹر کریں",
         signedUp: "رجسٹریشن مکمل",
         volunteerNameRequired: "رجسٹر کرنے سے پہلے اپنا نام درج کریں۔",
-        validation: "⚠️ براہ کرم تمام خانے مکمل کریں (نام، تاریخ اور تفصیل)"
+        validation: "⚠️ براہ کرم تمام خانے مکمل کریں (نام، تاریخ اور تفصیل)",
+        timeValidation: "براہ کرم آغاز اور اختتام دونوں اوقات درج کریں اور یقینی بنائیں کہ اختتام کا وقت آغاز کے بعد ہے۔",
+        linkValidation: "درست ویب لنک درج کریں جو http:// یا https:// سے شروع ہو۔"
     }
 };
 
@@ -155,10 +207,23 @@ function applyLanguage() {
     document.getElementById("appSubtitle").textContent = translation.subtitle;
     document.getElementById("searchInput").placeholder = translation.searchPlaceholder;
     document.getElementById("searchInput").setAttribute("aria-label", translation.searchLabel);
-    document.getElementById("addEventHeading").textContent = translation.addEventHeading;
+    document.getElementById("addEventHeading").textContent = editingEventIndex === null
+        ? translation.addEventHeading
+        : translation.editEventHeading;
     document.getElementById("eventNameLabel").textContent = translation.eventNameLabel;
     document.getElementById("eventName").placeholder = translation.eventNamePlaceholder;
     document.getElementById("eventDateLabel").textContent = translation.eventDateLabel;
+    document.getElementById("eventLocationLabel").textContent = translation.eventLocationLabel;
+    document.getElementById("eventLocation").placeholder = translation.eventLocationPlaceholder;
+    document.getElementById("eventCategoryLabel").textContent = translation.eventCategoryLabel;
+    document.querySelector("#eventCategory option[value='']").textContent = translation.selectCategory;
+    ["community", "education", "arts", "sports", "other"].forEach(category => {
+        document.querySelector(`#eventCategory option[value='${category}']`).textContent =
+            translation[`category${category[0].toUpperCase()}${category.slice(1)}`];
+    });
+    document.getElementById("eventStartTimeLabel").textContent = translation.eventStartTimeLabel;
+    document.getElementById("eventEndTimeLabel").textContent = translation.eventEndTimeLabel;
+    document.getElementById("eventLinkLabel").textContent = translation.eventLinkLabel;
     document.getElementById("eventDescriptionLabel").textContent = translation.eventDescriptionLabel;
     document.getElementById("eventDescription").placeholder = translation.eventDescriptionPlaceholder;
     document.getElementById("accessibilityLegend").textContent = translation.accessibilityLegend;
@@ -170,7 +235,10 @@ function applyLanguage() {
     document.getElementById("volunteerCount").placeholder = translation.volunteerCountPlaceholder;
     document.getElementById("volunteerStartLabel").textContent = translation.volunteerStartLabel;
     document.getElementById("volunteerEndLabel").textContent = translation.volunteerEndLabel;
-    document.getElementById("addEventButton").textContent = translation.addEventButton;
+    addEventButton.textContent = editingEventIndex === null
+        ? translation.addEventButton
+        : translation.updateEventButton;
+    cancelEditButton.textContent = translation.cancelEditButton;
     document.getElementById("eventsHeading").textContent = translation.eventsHeading;
     document.getElementById("footerText").textContent = translation.footerText;
     document.querySelectorAll("[data-accessibility-label]").forEach(label => {
@@ -200,30 +268,71 @@ function registerServiceWorker() {
         });
 }
 
-function getVolunteerMarkup(event, eventIndex) {
-        if (!event.volunteerShift || !event.volunteerShift.role || !event.volunteerShift.required) {
-            return `<p class="no-volunteers">${getTranslation("noVolunteers")}</p>`;
-        }
+function createVolunteerDetails(event, eventIndex) {
+    if (!event.volunteerShift || !event.volunteerShift.role || !event.volunteerShift.required) {
+        return createEventText("p", "no-volunteers", getTranslation("noVolunteers"));
+    }
 
-        const shift = event.volunteerShift;
-        const signups = Array.isArray(shift.signups) ? shift.signups : [];
-        const remaining = Math.max(shift.required - signups.length, 0);
-        const time = shift.start && shift.end ? `${shift.start} - ${shift.end}` : "";
-        const signupButton = remaining > 0
-            ? `<div class="volunteer-signup">
-                <input id="volunteer-name-${eventIndex}" type="text" placeholder="${getTranslation("volunteerNamePlaceholder")}" aria-label="${getTranslation("volunteerNamePlaceholder")}">
-                <button class="btn-signup" onclick="signUpForShift(${eventIndex})">${getTranslation("signUp")}</button>
-            </div>`
-            : `<p class="shift-full">${getTranslation("signedUp")}</p>`;
+    const shift = event.volunteerShift;
+    const signups = Array.isArray(shift.signups) ? shift.signups : [];
+    const remaining = Math.max(shift.required - signups.length, 0);
+    const shiftDetails = document.createElement("div");
+    shiftDetails.className = "volunteer-shift";
+    shiftDetails.appendChild(createEventText("strong", "", `${getTranslation("shiftDetails")}: ${shift.role}`));
+    if (shift.start && shift.end) {
+        shiftDetails.appendChild(createEventText("span", "", `${shift.start} - ${shift.end}`));
+    }
+    shiftDetails.appendChild(createEventText(
+        "span",
+        "",
+        `${remaining} ${getTranslation("volunteersRemaining")} (${shift.required} ${getTranslation("volunteersNeeded")})`
+    ));
 
-        return `
-            <div class="volunteer-shift">
-                <strong>${getTranslation("shiftDetails")}: ${shift.role}</strong>
-                <span>${time}</span>
-                <span>${remaining} ${getTranslation("volunteersRemaining")} (${shift.required} ${getTranslation("volunteersNeeded")})</span>
-                ${signupButton}
-            </div>
-        `;
+    if (remaining > 0) {
+        const signupForm = document.createElement("div");
+        signupForm.className = "volunteer-signup";
+        const nameInput = document.createElement("input");
+        nameInput.id = `volunteer-name-${eventIndex}`;
+        nameInput.type = "text";
+        nameInput.placeholder = getTranslation("volunteerNamePlaceholder");
+        nameInput.setAttribute("aria-label", getTranslation("volunteerNamePlaceholder"));
+        const signupButton = document.createElement("button");
+        signupButton.className = "btn-signup";
+        signupButton.type = "button";
+        signupButton.textContent = getTranslation("signUp");
+        signupButton.addEventListener("click", () => signUpForShift(eventIndex));
+        signupForm.append(nameInput, signupButton);
+        shiftDetails.appendChild(signupForm);
+    } else {
+        shiftDetails.appendChild(createEventText("p", "shift-full", getTranslation("signedUp")));
+    }
+    return shiftDetails;
+}
+
+function createEventText(tagName, className, text) {
+    const element = document.createElement(tagName);
+    if (className) {
+        element.className = className;
+    }
+    element.textContent = text;
+    return element;
+}
+
+function getCategoryLabel(category) {
+    const key = `category${category[0].toUpperCase()}${category.slice(1)}`;
+    return translations[currentLanguage][key] || category;
+}
+
+function getSafeEventUrl(value) {
+    if (!value) {
+        return "";
+    }
+    try {
+        const url = new URL(value);
+        return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+    } catch (error) {
+        return "";
+    }
 }
 
 // ==================== DISPLAY EVENTS FUNCTION ====================
@@ -258,22 +367,62 @@ function displayEvents(eventsToShow = events) {
         }
 
         const eventAccessibility = Array.isArray(event.accessibility) ? event.accessibility : [];
-        const accessibilityMarkup = eventAccessibility.length > 0
-            ? `<div class="accessibility-badges" aria-label="Accessibility features">
-                ${eventAccessibility.map(feature => `<span class="accessibility-badge">${accessibilityLabels[feature]?.[currentLanguage] || feature}</span>`).join("")}
-            </div>`
-            : `<p class="no-accessibility">${getTranslation("noAccessibility")}</p>`;
         const eventIndex = events.indexOf(event);
+        eventCard.appendChild(createEventText("h3", "", event.name));
+        eventCard.appendChild(createEventText("p", "event-date", `📅 ${formatDate(event.date)}`));
+        if (event.location) {
+            eventCard.appendChild(createEventText("p", "event-detail", `${getTranslation("location")}: ${event.location}`));
+        }
+        if (event.category) {
+            eventCard.appendChild(createEventText("p", "event-detail", `${getTranslation("category")}: ${getCategoryLabel(event.category)}`));
+        }
+        if (event.startTime || event.endTime) {
+            const time = [event.startTime, event.endTime].filter(Boolean).join(" - ");
+            eventCard.appendChild(createEventText("p", "event-detail", `${getTranslation("eventTime")}: ${time}`));
+        }
+        eventCard.appendChild(createEventText("p", "event-description", event.description));
 
-        // Create the HTML content for the event card
-        eventCard.innerHTML = `
-            <h3>${event.name}</h3>
-            <p class="event-date">📅 ${formatDate(event.date)}</p>
-            <p class="event-description">${event.description}</p>
-            ${accessibilityMarkup}
-            ${getVolunteerMarkup(event, eventIndex)}
-            <button class="btn-delete" onclick="deleteEvent(${eventIndex})">${getTranslation("deleteEvent")}</button>
-        `;
+        if (event.link && getSafeEventUrl(event.link)) {
+            const link = document.createElement("a");
+            link.className = "event-link";
+            link.href = getSafeEventUrl(event.link);
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = getTranslation("eventLink");
+            eventCard.appendChild(link);
+        }
+
+        if (eventAccessibility.length > 0) {
+            const badges = document.createElement("div");
+            badges.className = "accessibility-badges";
+            badges.setAttribute("aria-label", "Accessibility features");
+            eventAccessibility.forEach(feature => {
+                badges.appendChild(createEventText(
+                    "span",
+                    "accessibility-badge",
+                    accessibilityLabels[feature]?.[currentLanguage] || feature
+                ));
+            });
+            eventCard.appendChild(badges);
+        } else {
+            eventCard.appendChild(createEventText("p", "no-accessibility", getTranslation("noAccessibility")));
+        }
+        eventCard.appendChild(createVolunteerDetails(event, eventIndex));
+
+        const actions = document.createElement("div");
+        actions.className = "event-actions";
+        const editButton = document.createElement("button");
+        editButton.className = "btn-edit";
+        editButton.type = "button";
+        editButton.textContent = getTranslation("editEvent");
+        editButton.addEventListener("click", () => editEvent(eventIndex));
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "btn-delete";
+        deleteButton.type = "button";
+        deleteButton.textContent = getTranslation("deleteEvent");
+        deleteButton.addEventListener("click", () => deleteEvent(eventIndex));
+        actions.append(editButton, deleteButton);
+        eventCard.appendChild(actions);
 
         // Add the card to the page
         eventsList.appendChild(eventCard);
@@ -283,9 +432,9 @@ function displayEvents(eventsToShow = events) {
 // ==================== FORMAT DATE FUNCTION ====================
 // This function converts a date like "2026-07-15" to a readable format like "July 15, 2026"
 function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', options);
+    const date = new Date(`${dateString}T00:00:00`);
+    const locale = currentLanguage === "ur" ? "ur-PK" : "en-US";
+    return new Intl.DateTimeFormat(locale, { year: "numeric", month: "long", day: "numeric" }).format(date);
 }
 
 // ==================== ADD EVENT FUNCTION ====================
@@ -293,57 +442,111 @@ function formatDate(dateString) {
 function addEvent(e) {
     e.preventDefault(); // Prevent the form from refreshing the page
 
-    // Get the values from the form inputs
     const name = eventNameInput.value.trim();
     const date = eventDateInput.value;
     const description = eventDescriptionInput.value.trim();
+    const startTime = eventStartTimeInput.value;
+    const endTime = eventEndTimeInput.value;
+    const link = eventLinkInput.value.trim();
     const accessibility = Array.from(accessibilityInputs)
         .filter(input => input.checked)
         .map(input => input.value);
     const volunteerRole = volunteerRoleInput.value.trim();
     const volunteerCount = Number.parseInt(volunteerCountInput.value, 10);
+    const previousShift = editingEventIndex === null ? null : events[editingEventIndex]?.volunteerShift;
     const volunteerShift = volunteerRole && volunteerCount > 0
         ? {
             role: volunteerRole,
             required: volunteerCount,
             start: volunteerStartInput.value,
             end: volunteerEndInput.value,
-            signups: []
+            signups: Array.isArray(previousShift?.signups) ? previousShift.signups : []
         }
         : null;
 
-    // FORM VALIDATION: Check if all fields are filled in
     if (!name || !date || !description) {
-        // Show warning message
         warningMessage.textContent = getTranslation("validation");
         warningMessage.classList.add("show");
         return;
     }
 
-    // Hide warning message if everything is okay
-    warningMessage.classList.remove("show");
+    if (Boolean(startTime) !== Boolean(endTime) || (startTime && endTime <= startTime)) {
+        warningMessage.textContent = getTranslation("timeValidation");
+        warningMessage.classList.add("show");
+        return;
+    }
 
-    // Create a new event object
+    const safeLink = getSafeEventUrl(link);
+    if (link && !safeLink) {
+        warningMessage.textContent = getTranslation("linkValidation");
+        warningMessage.classList.add("show");
+        return;
+    }
+
+    warningMessage.classList.remove("show");
     const newEvent = {
-        name: name,
-        date: date,
-        description: description,
+        name,
+        date,
+        description,
+        location: eventLocationInput.value.trim(),
+        category: eventCategoryInput.value,
+        startTime,
+        endTime,
+        link: safeLink,
         accessibility: accessibility,
         volunteerShift: volunteerShift
     };
 
-    // Add the new event to the events array
-    events.push(newEvent);
-
-    // Sort events by date (ascending order - earliest first)
+    if (editingEventIndex === null) {
+        events.push(newEvent);
+    } else {
+        events[editingEventIndex] = newEvent;
+    }
     sortEventsByDate();
     saveEvents();
+    resetEventForm();
+    searchEvents();
+}
 
-    // Clear the form fields
+function editEvent(index) {
+    const event = events[index];
+    if (!event) {
+        return;
+    }
+
+    editingEventIndex = index;
+    eventNameInput.value = event.name;
+    eventDateInput.value = event.date;
+    eventDescriptionInput.value = event.description;
+    eventLocationInput.value = event.location || "";
+    eventCategoryInput.value = event.category || "";
+    eventStartTimeInput.value = event.startTime || "";
+    eventEndTimeInput.value = event.endTime || "";
+    eventLinkInput.value = event.link || "";
+    accessibilityInputs.forEach(input => {
+        input.checked = Array.isArray(event.accessibility) && event.accessibility.includes(input.value);
+    });
+
+    const shift = event.volunteerShift || {};
+    volunteerRoleInput.value = shift.role || "";
+    volunteerCountInput.value = shift.required || "";
+    volunteerStartInput.value = shift.start || "";
+    volunteerEndInput.value = shift.end || "";
+    document.getElementById("addEventHeading").textContent = getTranslation("editEventHeading");
+    addEventButton.textContent = getTranslation("updateEventButton");
+    cancelEditButton.hidden = false;
+    warningMessage.classList.remove("show");
+    eventForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    eventNameInput.focus();
+}
+
+function resetEventForm() {
     eventForm.reset();
-
-    // Refresh the display to show the new event
-    displayEvents();
+    editingEventIndex = null;
+    document.getElementById("addEventHeading").textContent = getTranslation("addEventHeading");
+    addEventButton.textContent = getTranslation("addEventButton");
+    cancelEditButton.hidden = true;
+    warningMessage.classList.remove("show");
 }
 
 // ==================== SORT EVENTS BY DATE ====================
@@ -359,12 +562,14 @@ function sortEventsByDate() {
 // ==================== DELETE EVENT FUNCTION ====================
 // This function removes an event from the list
 function deleteEvent(index) {
-    // Remove the event at the specified index from the events array
+    if (editingEventIndex === index) {
+        resetEventForm();
+    } else if (editingEventIndex !== null && editingEventIndex > index) {
+        editingEventIndex -= 1;
+    }
     events.splice(index, 1);
     saveEvents();
-
-    // Refresh the display to remove the deleted event
-    displayEvents();
+    searchEvents();
 }
 
 function signUpForShift(index) {
@@ -403,12 +608,18 @@ function searchEvents() {
         .filter(input => input.checked)
         .map(input => input.value);
     const filteredEvents = events.filter(event => {
-        const nameMatch = event.name.toLowerCase().includes(searchTerm);
-        const dateMatch = event.date.includes(searchTerm);
+        const searchableText = [
+            event.name,
+            event.date,
+            event.location,
+            event.category,
+            event.description
+        ].filter(Boolean).join(" ").toLowerCase();
+        const searchMatch = searchableText.includes(searchTerm);
         const eventAccessibility = Array.isArray(event.accessibility) ? event.accessibility : [];
         const accessibilityMatch = selectedFeatures.every(feature => eventAccessibility.includes(feature));
 
-        return (searchTerm === "" || nameMatch || dateMatch) && accessibilityMatch;
+        return searchMatch && accessibilityMatch;
     });
 
     displayEvents(filteredEvents);
@@ -419,6 +630,7 @@ function searchEvents() {
 
 // When the form is submitted (user clicks "Add Event")
 eventForm.addEventListener("submit", addEvent);
+cancelEditButton.addEventListener("click", resetEventForm);
 
 // When user types in the search box
 searchInput.addEventListener("input", searchEvents);

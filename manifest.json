@@ -1,11 +1,11 @@
 {
-    "name": "Event Horizon - Event Management",
-    "short_name": "Event Horizon",
+    "name": "MomentMap - Event Calendar",
+    "short_name": "MomentMap",
     "description": "Manage community events, even when you are offline.",
     "start_url": "./index.html",
     "display": "standalone",
-    "background_color": "#f5f5f5",
-    "theme_color": "#667eea",
+    "background_color": "#f5f7fb",
+    "theme_color": "#4f46e5",
     "icons": [
         {
             "src": "./icon.svg",
